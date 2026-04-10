@@ -36,6 +36,11 @@ app.use(
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   }),
 );
+
+app.use(cors({
+  origin: 'https://green-leaf-1.onrender.com',
+  credentials: true
+}));
 const rawOrigins =
   process.env.FRONTEND_URL || "http://localhost:5173,http://localhost:5174";
 const allowedOrigins = rawOrigins

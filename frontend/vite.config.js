@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
       })
     ],
     server: {
+      host:'0.0.0.0',
       port: 5173,
       headers: {
         // Allow Google OAuth postMessage to work without being blocked by COOP

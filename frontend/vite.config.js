@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      react(), 
+      react(),
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
@@ -36,11 +36,13 @@ export default defineConfig(({ mode }) => {
         }
       })
     ],
+
+    // ✅ Development server (local)
     server: {
-      host:'0.0.0.0',
+      host: '0.0.0.0',
       port: 5173,
       headers: {
-        // Allow Google OAuth postMessage to work without being blocked by COOP
+        // Fix for Google OAuth popup issue
         'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
       },
       proxy: {
@@ -55,6 +57,15 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
+
+    // ✅ Production preview (Render fix)
+    preview: {
+      host: '0.0.0.0',
+      port: 4173,
+      allowedHosts: 'all'   // 🔥 fixes "Blocked request" error
+    },
+
+    // ✅ Build settings
     build: {
       outDir: 'dist',
       sourcemap: true

@@ -8,6 +8,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const path = require("path");
+const compression = require("compression");
 
 const { errorHandler } = require("./middlewares/errorHandler");
 const { apiLimiter } = require("./middlewares/rateLimiter");
@@ -30,46 +31,63 @@ const chatRoutes = require("./routes/chat.routes");
 
 const app = express();
 
-// Middlewares
+/* =======================
+   SECURITY MIDDLEWARES
+======================= */
 app.use(
   helmet({
     crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
-  }),
+  })
 );
 
-app.use(cors({
-  origin: 'https://green-leaf-1.onrender.com',
-  credentials: true
-}));
+/* =======================
+   ✅ FIXED CORS (IMPORTANT)
+======================= */
 const rawOrigins =
-  process.env.FRONTEND_URL || "http://localhost:5173,http://localhost:5174";
+  process.env.FRONTEND_URL || "https://green-leaf-1.onrender.com";
+
 const allowedOrigins = rawOrigins
   .split(",")
-  .map((url) => url.trim())
-  .filter(Boolean);
+  .map((url) => url.trim());
+
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps / Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS not allowed"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-request-id"],
-  }),
+  })
 );
+
+/* =======================
+   GENERAL MIDDLEWARES
+======================= */
 app.use(assignRequestId);
-const compression = require("compression");
 app.use(compression());
 app.use(morgan("combined"));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Apply global rate limiter to API routes
+/* =======================
+   RATE LIMITER
+======================= */
 app.use("/api", apiLimiter);
 
-// Static files for images
+/* =======================
+   STATIC FILES
+======================= */
 app.use("/images", express.static(path.join(__dirname, "../public/images")));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// Health check endpoint
+/* =======================
+   HEALTH CHECK
+======================= */
 app.get("/health", (req, res) => {
   res.json({
     status: "ok",
@@ -79,9 +97,11 @@ app.get("/health", (req, res) => {
   });
 });
 
-// API Routes
+/* =======================
+   API ROUTES
+======================= */
 app.get("/api/ping", (req, res) =>
-  res.json({ message: "pong", timestamp: new Date() }),
+  res.json({ message: "pong", timestamp: new Date() })
 );
 
 app.use("/api/auth", authRoutes);
@@ -89,45 +109,54 @@ app.use("/api/users", userRoutes);
 app.use("/api/shops", shopRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+
 app.use(
   "/api/delivery",
   (req, res, next) => {
     logger.debug(`[Delivery Route Hit]: ${req.method} ${req.url}`);
     next();
   },
-  deliveryRoutes,
+  deliveryRoutes
 );
+
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/emissions", emissionRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/chat", chatRoutes);
 
-// Root endpoint
+/* =======================
+   ROOT ROUTE
+======================= */
 app.get("/", (req, res) => {
   res.json({
     name: "GreenRoute Commerce API",
     version: "1.0.0",
     description: "Climate-optimized quick-commerce platform",
-    docs: "/docs",
   });
 });
 
-// Metrics endpoint
+/* =======================
+   METRICS
+======================= */
 app.get("/metrics", async (req, res) => {
   res.set("Content-Type", metrics.register.contentType);
   res.end(await metrics.register.metrics());
 });
 
-// 404 not found fallback
-app.use((req, res, next) => {
+/* =======================
+   404 HANDLER
+======================= */
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: "Route not found",
   });
 });
 
-// Error handling middleware
+/* =======================
+   ERROR HANDLER
+======================= */
 app.use(errorHandler);
 
 module.exports = app;

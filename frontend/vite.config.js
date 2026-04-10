@@ -37,12 +37,10 @@ export default defineConfig(({ mode }) => {
       })
     ],
 
-    // ✅ Development server (local)
     server: {
       host: '0.0.0.0',
       port: 5173,
       headers: {
-        // Fix for Google OAuth popup issue
         'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
       },
       proxy: {
@@ -58,14 +56,14 @@ export default defineConfig(({ mode }) => {
       }
     },
 
-    // ✅ Production preview (Render fix)
     preview: {
       host: '0.0.0.0',
       port: 4173,
-      allowedHosts: 'all'   // 🔥 fixes "Blocked request" error
+      allowedHosts: [
+        'green-leaf-1.onrender.com'
+      ]
     },
 
-    // ✅ Build settings
     build: {
       outDir: 'dist',
       sourcemap: true

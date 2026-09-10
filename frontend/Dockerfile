@@ -1,0 +1,1 @@
+FROM node:18-alpine AS builder`nWORKDIR /app`nCOPY package*.json ./`nRUN npm ci`nCOPY . .`nRUN npm run build`n`nFROM nginx:alpine`nCOPY --from=builder /app/dist /usr/share/nginx/html`nCOPY nginx.conf /etc/nginx/conf.d/default.conf`nEXPOSE 80`nCMD ["nginx", "-g", "daemon off;"]

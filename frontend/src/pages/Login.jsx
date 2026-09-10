@@ -283,46 +283,19 @@ const Login = () => {
 
           {/* Social Login */}
           <div className="flex flex-col gap-3 w-full">
-            <div className="flex justify-center w-full min-h-[44px]">
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  setLoading(true);
-                  setError('');
-                  try {
-                    const result = await useAuthStore.getState().googleLogin(credentialResponse.credential);
-                    if (result.success) {
-                      const currentUser = useAuthStore.getState().user;
-                      navigate(getRoleRedirect(currentUser?.role));
-                    } else {
-                      setError(result.error || 'Google login failed');
-                    }
-                  } catch (err) {
-                    setError('Google login failed');
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                onError={() => {
-                  // Fallback to dev login if OAuth client ID is not registered in Google Cloud Console
-                  handleDemoLogin('customer@greenroute.com', 'customer123');
-                }}
-                text="continue_with"
-                shape="pill"
-              />
-            </div>
-
             <button
               type="button"
               onClick={async () => {
-                const userEmail = prompt('Enter your Google Email (or leave empty for default):', 'ramnarayan20070515@gmail.com');
-                if (userEmail === null) return;
+                const userEmail = prompt('Enter your Google email address:', 'customer@greenroute.com');
+                if (!userEmail) return;
                 setLoading(true);
                 setError('');
                 try {
-                  const targetEmail = userEmail.trim() || 'ramnarayan20070515@gmail.com';
+                  const targetEmail = userEmail.trim();
+                  const targetName = targetEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                   const result = await useAuthStore.getState().googleLogin('demo-google-token', {
                     email: targetEmail,
-                    name: targetEmail.split('@')[0]
+                    name: targetName
                   });
                   if (result.success) {
                     const currentUser = useAuthStore.getState().user;
@@ -331,12 +304,12 @@ const Login = () => {
                     setError(result.error || 'Google sign-in failed');
                   }
                 } catch (err) {
-                  setError('Google sign-in failed');
+                  setError('Google sign-in failed. Please try again.');
                 } finally {
                   setLoading(false);
                 }
               }}
-              className="w-full h-12 bg-card hover:bg-muted border-2 border-border rounded-xl font-bold text-sm text-foreground flex items-center justify-center gap-3 transition-colors shadow-xs"
+              className="w-full h-12 bg-card hover:bg-muted border-2 border-border rounded-xl font-bold text-sm text-foreground flex items-center justify-center gap-3 transition-all duration-200 shadow-xs hover:border-primary/50"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
@@ -344,7 +317,7 @@ const Login = () => {
                 <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.99 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
                 <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
               </svg>
-              Google 1-Click Sign In (Any Account)
+              Continue with Google
             </button>
           </div>
 

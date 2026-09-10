@@ -1,1 +1,25 @@
-services:`n  - type: web`n    name: greenleaf-backend`n    env: node`n    rootDir: backend`n    buildCommand: npm install`n    startCommand: node server.js`n    envVars:`n      - key: NODE_ENV`n        value: production`n      - key: PORT`n        value: 5000`n      - key: JWT_SECRET`n        generateValue: true`n`n  - type: web`n    name: greenleaf-frontend`n    env: static`n    rootDir: frontend`n    buildCommand: npm run build`n    staticPublishPath: ./dist`n    routes:`n      - type: rewrite`n        source: /*`n        destination: /index.html
+services:
+  - type: web
+    name: greenleaf-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+
+  - type: web
+    name: greenleaf-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -1,1 +1,15 @@
-{`n  "version": 2,`n  "buildCommand": "cd frontend && npm run build",`n  "outputDirectory": "frontend/dist",`n  "rewrites": [`n    {`n      "source": "/api/(.*)",`n      "destination": "https://greenleaf-backend.onrender.com/api/$1"`n    },`n    {`n      "source": "/(.*)",`n      "destination": "/index.html"`n    }`n  ]`n}
+{
+  "version": 2,
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://greenleaf-backend.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

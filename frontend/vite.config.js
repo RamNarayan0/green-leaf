@@ -40,6 +40,7 @@ export default defineConfig(({ mode }) => {
     server: {
       host: '0.0.0.0',
       port: 5173,
+      allowedHosts: true,
       headers: {
         'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
       },

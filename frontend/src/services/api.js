@@ -198,4 +198,11 @@ export const cartAPI = {
   clearCart: () => api.delete('/cart/clear')
 };
 
+export const chatAPI = {
+  getMessages: (orderId) => api.get(`/chat/${orderId}/messages`),
+  sendMessage: (orderId, data) => api.post(`/chat/${orderId}/messages`, data),
+  markAsRead: (orderId) => api.put(`/chat/${orderId}/read`),
+  askAssistant: (message) => api.post('/chat/assistant', { message })
+};
+
 export default api;

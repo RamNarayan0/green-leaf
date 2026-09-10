@@ -10,11 +10,10 @@ const redisConnection = {
   password: process.env.REDIS_PASSWORD || config.redisPassword || undefined
 };
 
-if (isTestEnv) {
-  return;
-}
+let worker = null;
 
-const worker = new Worker(
+if (!isTestEnv) {
+  worker = new Worker(
   'order-processing',
   async (job) => {
     const { orderId } = job.data;
@@ -62,3 +61,6 @@ worker.on('failed', (job, error) => {
 worker.on('error', (error) => {
   logger.error('[order.worker] Worker error', { error: error.message });
 });
+}
+
+module.exports = worker;

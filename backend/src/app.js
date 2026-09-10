@@ -28,6 +28,10 @@ const emissionRoutes = require("./routes/emission.routes");
 const cartRoutes = require("./routes/cart.routes");
 const uploadRoutes = require("./routes/upload.routes");
 const chatRoutes = require("./routes/chat.routes");
+const vehicleRoutes = require("./routes/vehicle.routes");
+const warehouseRoutes = require("./routes/warehouse.routes");
+const zoneRoutes = require("./routes/zone.routes");
+const paymentRoutes = require("./routes/payment.routes");
 
 const app = express();
 
@@ -44,7 +48,7 @@ app.use(
    ✅ FIXED CORS (IMPORTANT)
 ======================= */
 const rawOrigins =
-  process.env.FRONTEND_URL || "https://green-leaf-1.onrender.com";
+  process.env.FRONTEND_URL || "http://localhost:5173,http://localhost:3000,https://green-leaf-1.onrender.com";
 
 const allowedOrigins = rawOrigins
   .split(",")
@@ -53,8 +57,8 @@ const allowedOrigins = rawOrigins
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps / Postman)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // allow requests with no origin (like mobile apps / Postman) or localhost/allowedOrigins
+      if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:")) {
         return callback(null, true);
       }
       return callback(new Error("CORS not allowed"));
@@ -124,6 +128,10 @@ app.use("/api/emissions", emissionRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/vehicles", vehicleRoutes);
+app.use("/api/warehouses", warehouseRoutes);
+app.use("/api/zones", zoneRoutes);
+app.use("/api/payments", paymentRoutes);
 
 /* =======================
    ROOT ROUTE

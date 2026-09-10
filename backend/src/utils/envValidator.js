@@ -3,7 +3,7 @@ const logger = require('./logger');
 
 const schema = Joi.object({
   MONGODB_URI: Joi.string().optional(),
-  JWT_SECRET: Joi.string().min(10).required(),
+  JWT_SECRET: Joi.string().min(10).optional().default('default_jwt_secret_key_for_greenleaf_dev_mode_32chars'),
   JWT_REFRESH_SECRET: Joi.string().optional(),
   RAZORPAY_KEY_ID: Joi.string().optional(),
   RAZORPAY_KEY_SECRET: Joi.string().optional(),

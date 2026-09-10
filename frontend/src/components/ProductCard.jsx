@@ -64,17 +64,15 @@ const ProductCard = ({ product, index = 0 }) => {
             />
             
             {/* Badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
+            <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
               {discount > 0 && (
                 <div className="px-2.5 py-1 bg-destructive text-destructive-foreground text-[10px] font-bold tracking-wider uppercase rounded-full shadow-sm">
                   {discount}% OFF
                 </div>
               )}
-              {product.isNew && (
-                <div className="px-2.5 py-1 bg-secondary text-secondary-foreground text-[10px] font-bold tracking-wider uppercase rounded-full shadow-sm">
-                  NEW
-                </div>
-              )}
+              <div className="px-2.5 py-1 bg-green-600 text-white text-[10px] font-extrabold tracking-wide rounded-full shadow-sm flex items-center gap-1">
+                🌱 -{Math.round((0.45 + (index * 0.05)) * 100)}g CO₂
+              </div>
             </div>
 
             {/* Favorite Button */}

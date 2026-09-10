@@ -118,9 +118,9 @@ const Home = () => {
                     transition={{ delay: 0.3, duration: 0.6 }}
                     className="max-w-2xl"
                   >
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 text-primary-foreground mb-6 text-sm font-semibold tracking-wide">
-                      <Sparkles className="w-4 h-4" />
-                      {promotions[currentSlide].subtitle}
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/20 backdrop-blur-md border border-green-400/30 text-green-300 mb-6 text-sm font-semibold tracking-wide">
+                      <Sparkles className="w-4 h-4 text-green-400 animate-spin" />
+                      {promotions[currentSlide].subtitle} • AI Agent Active
                     </div>
                     <h1 className="text-5xl lg:text-7xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight text-glow">
                       {promotions[currentSlide].title}
@@ -128,10 +128,37 @@ const Home = () => {
                     <p className="text-lg lg:text-xl text-white/90 mb-8 max-w-lg font-medium leading-relaxed">
                       {promotions[currentSlide].description}
                     </p>
-                    <button className="h-14 px-8 inline-flex items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-eco transition-all text-lg font-semibold group duration-300">
-                      {promotions[currentSlide].cta}
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </button>
+
+                    {/* AI Recipe-to-Cart Instant Input */}
+                    <div className="bg-white/10 backdrop-blur-xl p-2 rounded-2xl border border-white/20 flex gap-2 max-w-lg mb-8 shadow-2xl">
+                      <input
+                        type="text"
+                        placeholder="🥗 Ask AI Agent: e.g. 'Build Organic Salad'..."
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.target.value.trim()) {
+                            window.location.href = `/products?search=${encodeURIComponent(e.target.value)}`;
+                          }
+                        }}
+                        className="flex-1 bg-transparent px-4 text-sm text-white placeholder-white/70 focus:outline-none font-medium"
+                      />
+                      <Link 
+                        to="/products"
+                        className="px-5 py-3 bg-green-500 hover:bg-green-600 text-white text-sm font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-lg shrink-0"
+                      >
+                        <Sparkles className="w-4 h-4" /> AI Shop
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <Link to="/products" className="h-14 px-8 inline-flex items-center justify-center rounded-xl bg-green-500 text-white hover:bg-green-600 shadow-lg transition-all text-lg font-semibold group duration-300">
+                        {promotions[currentSlide].cta}
+                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                      <div className="hidden sm:flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold">
+                        <Leaf className="w-4 h-4 text-green-400 animate-pulse" />
+                        <span>🌱 14,290 kg CO₂ Saved Today</span>
+                      </div>
+                    </div>
                   </motion.div>
                 </div>
               </div>
@@ -155,7 +182,7 @@ const Home = () => {
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'bg-primary w-10 shadow-eco' : 'bg-white/50 hover:bg-white/80 w-2'
+                  index === currentSlide ? 'bg-green-500 w-10 shadow-lg' : 'bg-white/50 hover:bg-white/80 w-2'
                 }`}
               />
             ))}

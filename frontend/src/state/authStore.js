@@ -48,10 +48,10 @@ export const useAuthStore = create((set, get) => ({
       return { success: false, error: message };
     }
   },
-  googleLogin: async (credential) => {
+  googleLogin: async (credential, extraData = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post('/auth/google', { token: credential });
+      const response = await api.post('/auth/google', { token: credential, ...extraData });
       const { token, refreshToken, user } = response.data.data || response.data;
       
       localStorage.setItem('token', token);

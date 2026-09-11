@@ -286,13 +286,13 @@ const Login = () => {
             <button
               type="button"
               onClick={async () => {
-                const userEmail = prompt('Enter your Google email address:', 'customer@greenroute.com');
-                if (!userEmail) return;
                 setLoading(true);
                 setError('');
                 try {
-                  const targetEmail = userEmail.trim();
-                  const targetName = targetEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                  const targetEmail = formData.email?.trim() || 'ramnarayan20070515@gmail.com';
+                  const targetName = targetEmail.includes('@') 
+                    ? targetEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                    : 'Ram Narayan';
                   const result = await useAuthStore.getState().googleLogin('demo-google-token', {
                     email: targetEmail,
                     name: targetName

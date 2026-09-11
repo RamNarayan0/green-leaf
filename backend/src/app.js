@@ -57,11 +57,10 @@ const allowedOrigins = rawOrigins
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps / Postman) or localhost/allowedOrigins
-      if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:")) {
+      if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:") || origin.endsWith(".vercel.app")) {
         return callback(null, true);
       }
-      return callback(new Error("CORS not allowed"));
+      return callback(null, true);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

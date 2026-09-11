@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://greenleaf-backend.onrender.com/api/$1"
+      "destination": "/api/index.js"
     },
     {
       "source": "/(.*)",

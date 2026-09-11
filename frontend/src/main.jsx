@@ -30,12 +30,8 @@ const router = createBrowserRouter(
   }
 );
 
-import { GoogleOAuthProvider } from '@react-oauth/google';
-
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '1234567890-dummygoogleclientid.apps.googleusercontent.com'}>
-      <RouterProvider router={router} future={{ v7_startTransition: true }} />
-    </GoogleOAuthProvider>
+    <RouterProvider router={router} future={{ v7_startTransition: true }} />
   </React.StrictMode>
 );

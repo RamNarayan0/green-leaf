@@ -1,7 +1,12 @@
 import axios from 'axios';
 
-// Always use relative path - Vite proxy handles /api to backend
-const API_BASE_URL = '/api';
+// In production the frontend and API are separate Render services. Keep the
+// relative URL for local Vite development, but use the configured backend URL
+// when the app is deployed as a static site.
+const configuredBackendUrl = import.meta.env.VITE_BACKEND_URL?.trim();
+const API_BASE_URL = configuredBackendUrl
+  ? `${configuredBackendUrl.replace(/\/$/, '')}/api`
+  : '/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

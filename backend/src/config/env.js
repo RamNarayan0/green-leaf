@@ -59,7 +59,7 @@ module.exports = config;
  * Validates required environment variables in production mode.
  */
 function validateConfig() {
-  if (config.nodeEnv === 'production') {
+  if (config.NODE_ENV === 'production') {
     const requiredVars = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'MONGODB_URI'];
     const missing = requiredVars.filter(v => !process.env[v]);
     

@@ -12,8 +12,7 @@ const schemas = {
     name: Joi.string().min(2).max(100).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).max(100).required(),
-    phone: Joi.string().optional(),
-    role: Joi.string().valid('customer', 'shopkeeper', 'delivery_partner', 'admin').default('customer')
+    phone: Joi.string().optional()
   }),
 
   // Login validation - accept arbitrary string to allow controlled auth failure instead of framework validation

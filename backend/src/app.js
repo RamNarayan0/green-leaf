@@ -100,6 +100,17 @@ app.get("/health", (req, res) => {
   });
 });
 
+// Keep the health check available under /api as well. This is the path used
+// by the deployed frontend and external uptime checks.
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    service: "GreenRoute Commerce API",
+    version: "1.0.0",
+  });
+});
+
 /* =======================
    API ROUTES
 ======================= */

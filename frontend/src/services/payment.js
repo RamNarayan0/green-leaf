@@ -54,8 +54,10 @@ export const initializeRazorpay = (options) => {
       return;
     }
 
+    const razorpayKey = (import.meta.env && import.meta.env.VITE_RAZORPAY_KEY_ID) || options.key || 'rzp_test_dummykeyid';
+
     const rzp = new window.Razorpay({
-      key: process.env.VITE_RAZORPAY_KEY_ID || options.key,
+      key: razorpayKey,
       amount: options.amount,
       currency: options.currency || 'INR',
       name: options.name || 'GreenRoute',
@@ -102,7 +104,7 @@ export const processPayment = async (amount, userDetails, orderData) => {
 
     // Initialize Razorpay
     const paymentResponse = await initializeRazorpay({
-      key: process.env.VITE_RAZORPAY_KEY_ID,
+      key: (import.meta.env && import.meta.env.VITE_RAZORPAY_KEY_ID) || 'rzp_test_dummykeyid',
       amount: orderResponse.data.amount,
       orderId: orderResponse.data.orderId,
       userName: userDetails.name,

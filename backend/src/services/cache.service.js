@@ -10,11 +10,14 @@ if (!isTestEnv && process.env.REDIS_HOST) {
   redis = new Redis({
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT || 6379,
-    password: process.env.REDIS_PASSWORD || undefined
+    password: process.env.REDIS_PASSWORD || undefined,
+    maxRetriesPerRequest: 1,
+    enableOfflineQueue: false,
+    retryStrategy: () => null
   });
 
   redis.on('error', (err) => {
-    logger.error('Redis error', err);
+    logger.warn(`Redis connection notice: ${err.message}. Using in-memory cache.`);
   });
   redis.on('connect', () => {
     logger.info('Connected to Redis');

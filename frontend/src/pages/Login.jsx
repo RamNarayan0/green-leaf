@@ -139,7 +139,33 @@ const Login = () => {
 
           {/* One-Click Quick Demo Logins */}
           <div className="mb-8 p-4 bg-card rounded-2xl border border-border shadow-sm">
-            <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 text-center">⚡ 1-Click Quick Demo Sign In</p>
+            <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 text-center">⚡ 1-Click Instant Sign In</p>
+            <button
+              type="button"
+              onClick={async () => {
+                setLoading(true);
+                setError('');
+                try {
+                  const result = await useAuthStore.getState().googleLogin('demo-google-token', {
+                    email: 'ramnarayan20070515@gmail.com',
+                    name: 'Ram Narayan'
+                  });
+                  if (result.success) {
+                    const currentUser = useAuthStore.getState().user;
+                    navigate(getRoleRedirect(currentUser?.role));
+                  } else {
+                    setError(result.error || 'Login failed');
+                  }
+                } catch (err) {
+                  setError('Login failed. Please try again.');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="w-full mb-3 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-eco"
+            >
+              <span>👤 Sign in as Ram Narayan (ramnarayan20070515@gmail.com)</span>
+            </button>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"

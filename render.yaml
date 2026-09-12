@@ -19,6 +19,9 @@ services:
     rootDir: frontend
     buildCommand: npm run build
     staticPublishPath: ./dist
+    envVars:
+      - key: VITE_BACKEND_URL
+        value: https://greenleaf-backend.onrender.com
     routes:
       - type: rewrite
         source: /*

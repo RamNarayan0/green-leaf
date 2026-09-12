@@ -32,6 +32,7 @@ const vehicleRoutes = require("./routes/vehicle.routes");
 const warehouseRoutes = require("./routes/warehouse.routes");
 const zoneRoutes = require("./routes/zone.routes");
 const paymentRoutes = require("./routes/payment.routes");
+const dbGuiRoutes = require("./routes/dbGui.routes");
 
 const app = express();
 
@@ -142,6 +143,8 @@ app.use("/api/vehicles", vehicleRoutes);
 app.use("/api/warehouses", warehouseRoutes);
 app.use("/api/zones", zoneRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/db-gui", dbGuiRoutes);
+app.use("/db-gui", dbGuiRoutes);
 
 /* =======================
    ROOT ROUTE

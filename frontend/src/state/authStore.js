@@ -67,25 +67,9 @@ export const useAuthStore = create((set, get) => ({
       }
       return { success: true };
     } catch (error) {
-      console.warn('Backend API unreachable or error, activating Google Auth client session fallback:', error.message);
-      const targetEmail = extraData.email || 'ramnarayan20070515@gmail.com';
-      const targetName = extraData.name || (targetEmail.includes('@') ? targetEmail.split('@')[0] : 'Google User');
-      const fallbackUser = {
-        _id: 'google-user-' + Date.now(),
-        id: 'google-user-' + Date.now(),
-        name: targetName,
-        email: targetEmail,
-        role: 'customer',
-        leafPoints: 500,
-        isGreenPassMember: true,
-        isVerified: true
-      };
-      const token = 'demo-jwt-token-google-' + Date.now();
-      const refreshToken = 'demo-refresh-token-google-' + Date.now();
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
-      set({ user: fallbackUser, token, refreshToken, isAuthenticated: true, isLoading: false, error: null });
-      return { success: true };
+      const message = error.response?.data?.message || 'Google login is unavailable. Please try again.';
+      set({ error: message, isLoading: false, isAuthenticated: false });
+      return { success: false, error: message };
     }
   },
 

@@ -10,6 +10,15 @@ const schema = Joi.object({
 }).unknown();
 
 const validateEnvironment = () => {
+  if (process.env.NODE_ENV === 'production') {
+    const required = ['MONGODB_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+    const missing = required.filter((key) => !process.env[key]);
+    if (missing.length) {
+      logger.error(`Missing required production environment variables: ${missing.join(', ')}`);
+      process.exit(1);
+    }
+  }
+
   const { error } = schema.validate(process.env);
   if (error) {
     logger.error(`Environment validation error: ${error.message}`);

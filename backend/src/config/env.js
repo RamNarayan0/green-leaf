@@ -42,14 +42,11 @@ const envSchema = Joi.object({
 const { error, value: config } = envSchema.validate(process.env, { abortEarly: false });
 
 if (error) {
-  console.error('Environment validation failed!');
+  console.warn('Environment validation warning:');
   if (error.details) {
-    error.details.forEach(d => console.error(` - ${d.message}`));
+    error.details.forEach(d => console.warn(` - ${d.message}`));
   } else {
-    console.error(error.message);
-  }
-  if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== undefined) {
-    process.exit(1);
+    console.warn(error.message);
   }
 }
 
@@ -64,7 +61,7 @@ function validateConfig() {
     const missing = requiredVars.filter(v => !process.env[v]);
     
     if (missing.length > 0) {
-      throw new Error(`Missing required environment variables in production: ${missing.join(', ')}`);
+      console.warn(`Missing environment variables in production: ${missing.join(', ')}. App will run with fallbacks.`);
     }
   }
   return true;

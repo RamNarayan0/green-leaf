@@ -6,9 +6,15 @@
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
 
+let isConnected = false;
+
 const connectDB = async () => {
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
   try {
-const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/greenroute';
+    const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/greenroute';
     
     const options = {
       maxPoolSize: 10,
@@ -16,7 +22,8 @@ const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/greenrout
       socketTimeoutMS: 45000,
     };
 
-    await mongoose.connect(mongoURI, options);
+    const conn = await mongoose.connect(mongoURI, options);
+    isConnected = conn.connections[0].readyState === 1;
     
     logger.info('MongoDB connected successfully');
     
@@ -26,6 +33,7 @@ const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/greenrout
     
     mongoose.connection.on('disconnected', () => {
       logger.warn('MongoDB disconnected');
+      isConnected = false;
     });
     
     process.on('SIGINT', async () => {

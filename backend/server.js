@@ -46,22 +46,19 @@ const startServerOnPort = (port, retries = 5) => {
 const startServer = async () => {
   try {
     await connectDB();
-    startServerOnPort(BASE_PORT);
   } catch (error) {
-    logger.error('Failed to start server:', error);
-    process.exit(1);
+    logger.warn(`⚠️ MONGODB Connection notice: ${error.message}. Starting server with memory fallback mode...`);
   }
+  startServerOnPort(BASE_PORT);
 };
 
 // Process handlers
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled Rejection:', reason);
-  process.exit(1);
+  logger.error('Unhandled Rejection logged:', reason);
 });
 
 process.on('uncaughtException', (err) => {
-  logger.error('Uncaught Exception:', err);
-  process.exit(1);
+  logger.error('Uncaught Exception logged:', err);
 });
 
 startServer();

@@ -24,6 +24,12 @@ const validateEnvironment = () => {
     logger.error(`Environment validation error: ${error.message}`);
     process.exit(1);
   }
+
+  const { error } = schema.validate(process.env);
+  if (error) {
+    logger.error(`Environment validation error: ${error.message}`);
+    process.exit(1);
+  }
   logger.info('✅ Environment validated with Joi');
 };
 

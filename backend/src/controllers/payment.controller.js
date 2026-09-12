@@ -211,6 +211,72 @@ const refundPayment = async (req, res) => {
       message: 'Refund processed successfully',
       data: refund
     });
+    if (!order || !order.paymentTransactionId) {
+      return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
+
+    const payment = await razorpay.payments.fetch(order.paymentTransactionId);
+
+    res.status(200).json({
+      success: true,
+      data: payment
+    });
+  } catch (error) {
+    logger.error('Error fetching payment:', { error: error.message, stack: error.stack });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch payment details'
+    });
+  }
+};
+
+/**
+ * Refund payment
+ * POST /api/payments/refund
+ */
+const refundPayment = async (req, res) => {
+  try {
+    const { paymentId, amount, reason } = req.body;
+
+    if (!paymentId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment ID is required'
+      });
+    }
+
+    const refundOptions = {
+      payment_id: paymentId
+    };
+
+    // Partial refund if amount specified
+    if (amount) {
+      refundOptions.amount = Math.round(amount * 100); // Convert to paise
+    }
+
+    if (reason) {
+      refundOptions.notes = { reason };
+    }
+
+    const refund = await razorpay.refunds.create(refundOptions);
+
+    // Update order status
+    const Order = require('../models/Order');
+    await Order.findOneAndUpdate(
+      { paymentTransactionId: paymentId },
+      { 
+        paymentStatus: 'refunded',
+        refundId: refund.id,
+        refundAmount: refund.amount / 100,
+        refundStatus: 'processed'
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Refund processed successfully',
+      data: refund
+    });
   } catch (error) {
     logger.error('Error processing refund:', { error: error.message, stack: error.stack });
     res.status(500).json({

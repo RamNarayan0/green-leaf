@@ -122,10 +122,9 @@ export const shopsAPI = {
   getAll: (params) => api.get('/shops', { params }),
   getById: (id) => api.get(`/shops/${id}`),
   create: (data) => api.post('/shops', data),
-  createShop: (data) => api.post('/shops', data), // Alias for onboarding
+  createShop: (data) => api.post('/shops', data),
   delete: (id) => api.delete(`/shops/${id}`),
   getNearby: (lat, lng, radius) => api.get('/shops/nearby', { params: { lng, lat, radius } }),
-  // Shopkeeper specific
   getMyShop: () => api.get('/shops/my-shop'),
   getMyShopOrders: () => api.get('/shops/my-shop/orders'),
   getMyShopStats: () => api.get('/shops/my-shop/stats')
@@ -181,7 +180,6 @@ export const analyticsAPI = {
 };
 
 export const deliveryAPI = {
-  // Delivery partner settings
   getProfile: () => api.get('/delivery/profile'),
   updateProfile: (data) => api.put('/delivery/profile', data),
   updateLocation: (lat, lng) => api.post('/delivery/location', { lat, lng }),

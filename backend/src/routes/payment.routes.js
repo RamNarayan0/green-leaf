@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middlewares/auth.middleware');
+const authorize = require('../middlewares/authorize');
 const {
   createPaymentOrder,
   verifyPayment,
@@ -26,7 +27,7 @@ router.post('/verify-payment', verifyPayment);
 router.get('/:orderId', getPaymentDetails);
 
 // Refund payment (admin only - can be extended)
-router.post('/refund', refundPayment);
+router.post('/refund', authorize('admin'), refundPayment);
 
 module.exports = router;
 

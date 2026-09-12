@@ -145,6 +145,7 @@ app.use("/api/zones", zoneRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/db-gui", dbGuiRoutes);
 app.use("/db-gui", dbGuiRoutes);
+app.use("/api/index.js/db-gui", dbGuiRoutes);
 
 /* =======================
    ROOT ROUTE

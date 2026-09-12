@@ -10,7 +10,7 @@ const upload = require('../middlewares/upload');
 const logger = require('../utils/logger');
 
 // Serve interactive Database GUI HTML Page
-router.get('/', async (req, res) => {
+router.get(['/', '/db-gui', '/api/db-gui'], async (req, res) => {
   try {
     const isConnected = mongoose.connection.readyState === 1;
     const collections = isConnected ? await mongoose.connection.db.listCollections().toArray() : [];
@@ -121,7 +121,7 @@ router.get('/', async (req, res) => {
 });
 
 // Endpoint to convert uploaded JPG/JPEG data to Base64 GUI format
-router.post('/convert-jpg', upload.single('image'), (req, res) => {
+router.post(['/convert-jpg', '/api/db-gui/convert-jpg'], upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No JPG/JPEG file provided' });

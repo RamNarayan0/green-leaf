@@ -72,7 +72,7 @@ const createPaymentOrder = async (req, res) => {
  */
 const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderData } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
 
     // Validate required fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -96,38 +96,31 @@ const verifyPayment = async (req, res) => {
       });
     }
 
-    // Payment verified successfully
-    // Now create the order in database
     const Order = require('../models/Order');
+    if (!orderId) {
+      return res.status(400).json({ success: false, message: 'orderId is required for server-side payment verification' });
+    }
+    const order = await Order.findOne({ _id: orderId, customer: req.user.id });
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    if (order.paymentStatus === 'paid') return res.status(409).json({ success: false, message: 'Order payment has already been verified' });
 
-    const orderNumber = `GR${Date.now()}${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+    const razorpayOrder = await razorpay.orders.fetch(razorpay_order_id);
+    if (razorpayOrder.amount !== Math.round(order.totalAmount * 100) || razorpayOrder.currency !== 'INR') {
+      return res.status(400).json({ success: false, message: 'Payment amount does not match the order total' });
+    }
 
-    const newOrder = new Order({
-      orderNumber,
-      user: req.user?.id,
-      items: orderData?.items || [],
-      shop: orderData?.shopId,
-      totalAmount: orderData?.total || 0,
-      deliveryFee: orderData?.deliveryFee || 29,
-      platformFee: orderData?.platformFee || 2,
-      paymentMethod: 'razorpay',
-      paymentStatus: 'paid',
-      paymentId: razorpay_payment_id,
-      razorpayOrderId: razorpay_order_id,
-      deliveryAddress: orderData?.deliveryAddress,
-      selectedVehicle: orderData?.selectedVehicle,
-      status: 'confirmed',
-      distanceKm: orderData?.distanceKm || 3
-    });
-
-    await newOrder.save();
+    order.paymentMethod = 'card';
+    order.paymentStatus = 'paid';
+    order.paymentTransactionId = razorpay_payment_id;
+    if (order.status.current === 'placed') order.updateStatus('confirmed', req.user.id);
+    await order.save();
 
     res.status(200).json({
       success: true,
       message: 'Payment verified and order created',
       data: {
-        orderId: newOrder._id,
-        orderNumber: newOrder.orderNumber,
+        orderId: order._id,
+        orderNumber: order.orderNumber,
         paymentId: razorpay_payment_id
       }
     });
@@ -147,8 +140,16 @@ const verifyPayment = async (req, res) => {
 const getPaymentDetails = async (req, res) => {
   try {
     const { orderId } = req.params;
+    const Order = require('../models/Order');
+    const order = await Order.findOne({
+      $or: [{ paymentTransactionId: orderId }, { _id: orderId }],
+      ...(req.user.role === 'admin' ? {} : { customer: req.user.id })
+    });
+    if (!order || !order.paymentTransactionId) {
+      return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
 
-    const payment = await razorpay.payments.fetch(orderId);
+    const payment = await razorpay.payments.fetch(order.paymentTransactionId);
 
     res.status(200).json({
       success: true,
@@ -196,7 +197,7 @@ const refundPayment = async (req, res) => {
     // Update order status
     const Order = require('../models/Order');
     await Order.findOneAndUpdate(
-      { paymentId },
+      { paymentTransactionId: paymentId },
       { 
         paymentStatus: 'refunded',
         refundId: refund.id,
@@ -220,13 +221,6 @@ const refundPayment = async (req, res) => {
 };
 
 const logger = require('../utils/logger');
-
-module.exports = {
-  createPaymentOrder,
-  verifyPayment,
-  getPaymentDetails,
-  refundPayment
-};
 
 module.exports = {
   createPaymentOrder,

@@ -833,10 +833,12 @@ class OrderController {
     }
   }
 
-  // Mark order as picked up (delivery partner)
+  // Mark order as picked up (assigned delivery partner only)
   async markAsPickedUp(req, res, next) {
     try {
-      const order = await Order.findById(req.params.id);
+      const DeliveryPartner = require('../models/DeliveryPartner');
+      const partner = await DeliveryPartner.findOne({ userId: req.user.id, isActive: true });
+      const order = partner ? await Order.findOne({ _id: req.params.id, deliveryPartner: partner._id }) : null;
 
       if (!order) {
         return res.status(404).json({
@@ -845,14 +847,12 @@ class OrderController {
         });
       }
 
-      order.status.current = 'picked_up';
-      order.status.history.push({
-        status: 'picked_up',
-        timestamp: new Date(),
-        note: 'Order picked up by delivery partner'
-      });
+      if (order.status.current !== 'assigned') {
+        return res.status(400).json({ success: false, message: `Cannot pick up an order in ${order.status.current} state` });
+      }
+
+      order.updateStatus('picked_up', req.user.id);
       order.pickedUpAt = new Date();
-      order.deliveryPartner = req.user.id;
       await order.save();
 
       res.json({
@@ -865,10 +865,12 @@ class OrderController {
     }
   }
 
-  // Mark order as delivered (delivery partner)
+  // Mark order as delivered (assigned delivery partner only)
   async markAsDelivered(req, res, next) {
     try {
-      const order = await Order.findById(req.params.id);
+      const DeliveryPartner = require('../models/DeliveryPartner');
+      const partner = await DeliveryPartner.findOne({ userId: req.user.id, isActive: true });
+      const order = partner ? await Order.findOne({ _id: req.params.id, deliveryPartner: partner._id }) : null;
 
       if (!order) {
         return res.status(404).json({
@@ -877,12 +879,14 @@ class OrderController {
         });
       }
 
-      order.status.current = 'delivered';
-      order.status.history.push({
-        status: 'delivered',
-        timestamp: new Date(),
-        note: 'Order delivered successfully'
-      });
+      if (!['picked_up', 'out_for_delivery'].includes(order.status.current)) {
+        return res.status(400).json({ success: false, message: `Cannot deliver an order in ${order.status.current} state` });
+      }
+
+      if (order.status.current === 'picked_up') {
+        order.updateStatus('out_for_delivery', req.user.id);
+      }
+      order.updateStatus('delivered', req.user.id);
       order.deliveredAt = new Date();
       await order.save();
 

@@ -12,7 +12,7 @@ class AuthController {
   // Register new user
   async register(req, res, next) {
     try {
-      const { name, email, password, phone, role, referralCode: signupReferralCode } = req.body;
+      const { name, email, password, phone, referralCode: signupReferralCode } = req.body;
 
       // Check if user exists
       const existingUser = await User.findOne({ email });
@@ -42,7 +42,8 @@ class AuthController {
         email,
         password,
         phone,
-        role: role || 'customer',
+        // Public registration must never accept a caller-supplied role.
+        role: 'customer',
         referralCode: uniqueCode,
         referredBy: referrer ? referrer._id : null,
         leafPoints: referrer ? 200 : 0, // 200 welcome bonus if referred
@@ -283,17 +284,7 @@ class AuthController {
         return res.status(400).json({ success: false, message: 'Google token is required' });
       }
 
-      let payload;
-      try {
-        payload = await googleAuthService.verifyGoogleToken(token, { email, name, picture });
-      } catch (verifyErr) {
-        logger.warn('Google token verification fallback activated.');
-        payload = {
-          email: email || 'user@gmail.com',
-          name: name || (email ? email.split('@')[0] : 'Google User'),
-          picture: picture || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'
-        };
-      }
+      const payload = await googleAuthService.verifyGoogleToken(token);
 
       if (!payload || !payload.email) {
         return res.status(401).json({ success: false, message: 'Invalid Google authentication payload' });

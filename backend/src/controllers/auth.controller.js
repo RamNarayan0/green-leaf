@@ -279,17 +279,17 @@ class AuthController {
   // Google OAuth manual POST login
   async googleLogin(req, res, next) {
     try {
-      const { token, email, name, picture } = req.body;
-      let payload;
-      if ((token === 'demo-google-token' || token === '1-click-google-auth-token') && email) {
-        payload = {
-          email: email.trim(),
-          name: name || email.split('@')[0],
-          picture: picture || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'
-        };
-      } else {
-        payload = await googleAuthService.verifyGoogleToken(token);
+      const { token } = req.body;
+
+      if (!token) {
+        return res.status(400).json({
+          success: false,
+          message: 'Google ID token is required'
+        });
       }
+
+      // Always verify the token with Google — never trust caller-supplied email/name/picture
+      const payload = await googleAuthService.verifyGoogleToken(token);
 
       if (!payload || !payload.email) {
         return res.status(401).json({ success: false, message: 'Invalid Google authentication payload' });

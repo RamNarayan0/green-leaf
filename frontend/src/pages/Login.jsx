@@ -39,21 +39,20 @@ const Login = () => {
     }
   };
 
-  const handleDemoLogin = async (email, password) => {
-    setFormData({ email, password });
-    setError('');
+  const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
+    setError('');
     try {
-      const result = await login(email, password);
+      const result = await useAuthStore.getState().googleLogin(credentialResponse.credential);
       if (result.success) {
         const currentUser = useAuthStore.getState().user;
         navigate(getRoleRedirect(currentUser?.role));
       } else {
-        setError(result.error || 'Demo login failed');
+        setError(result.error || 'Google sign-in failed');
       }
     } catch (err) {
-      console.error('Demo login error:', err);
-      setError('Demo login failed. Please try again.');
+      console.error('Google login error:', err);
+      setError('Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -137,67 +136,6 @@ const Login = () => {
             <p className="text-muted-foreground font-medium text-base">Sign in to continue to your dashboard</p>
           </div>
 
-          {/* One-Click Quick Demo Logins */}
-          <div className="mb-8 p-4 bg-card rounded-2xl border border-border shadow-sm">
-            <p className="text-xs font-bold text-primary uppercase tracking-wider mb-3 text-center">⚡ 1-Click Instant Sign In</p>
-            <button
-              type="button"
-              onClick={async () => {
-                setLoading(true);
-                setError('');
-                try {
-                  const result = await useAuthStore.getState().googleLogin('demo-google-token', {
-                    email: 'ramnarayan20070515@gmail.com',
-                    name: 'Ram Narayan'
-                  });
-                  if (result.success) {
-                    const currentUser = useAuthStore.getState().user;
-                    navigate(getRoleRedirect(currentUser?.role));
-                  } else {
-                    setError(result.error || 'Login failed');
-                  }
-                } catch (err) {
-                  setError('Login failed. Please try again.');
-                } finally {
-                  setLoading(false);
-                }
-              }}
-              className="w-full mb-3 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-eco"
-            >
-              <span>👤 Sign in as Ram Narayan (ramnarayan20070515@gmail.com)</span>
-            </button>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('customer@greenroute.com', 'customer123')}
-                className="px-3 py-2.5 bg-muted/50 hover:bg-primary hover:text-primary-foreground border border-border rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-xs"
-              >
-                🛒 Customer
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('shop@greenroute.com', 'shop123')}
-                className="px-3 py-2.5 bg-muted/50 hover:bg-primary hover:text-primary-foreground border border-border rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-xs"
-              >
-                🏪 Shopkeeper
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('partner@greenroute.com', 'partner123')}
-                className="px-3 py-2.5 bg-muted/50 hover:bg-primary hover:text-primary-foreground border border-border rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-xs"
-              >
-                🚴 Delivery
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDemoLogin('admin@greenroute.com', 'admin123')}
-                className="px-3 py-2.5 bg-muted/50 hover:bg-primary hover:text-primary-foreground border border-border rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 shadow-xs"
-              >
-                🛡️ Admin
-              </button>
-            </div>
-          </div>
-
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-4 animate-fade-in shadow-sm">
@@ -255,6 +193,7 @@ const Login = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -307,44 +246,17 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Social Login */}
-          <div className="flex flex-col gap-3 w-full">
-            <button
-              type="button"
-              onClick={async () => {
-                setLoading(true);
-                setError('');
-                try {
-                  const targetEmail = formData.email?.trim() || 'ramnarayan20070515@gmail.com';
-                  const targetName = targetEmail.includes('@') 
-                    ? targetEmail.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-                    : 'Ram Narayan';
-                  const result = await useAuthStore.getState().googleLogin('demo-google-token', {
-                    email: targetEmail,
-                    name: targetName
-                  });
-                  if (result.success) {
-                    const currentUser = useAuthStore.getState().user;
-                    navigate(getRoleRedirect(currentUser?.role));
-                  } else {
-                    setError(result.error || 'Google sign-in failed');
-                  }
-                } catch (err) {
-                  setError('Google sign-in failed. Please try again.');
-                } finally {
-                  setLoading(false);
-                }
-              }}
-              className="w-full h-12 bg-card hover:bg-muted border-2 border-border rounded-xl font-bold text-sm text-foreground flex items-center justify-center gap-3 transition-all duration-200 shadow-xs hover:border-primary/50"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.25 21.3 7.31 24 12 24z"/>
-                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.99 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
-                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-              </svg>
-              Continue with Google
-            </button>
+          {/* Real Google OAuth Login */}
+          <div className="flex justify-center w-full">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google sign-in failed. Please try again.')}
+              theme="outline"
+              size="large"
+              width="400"
+              text="continue_with"
+              shape="rectangular"
+            />
           </div>
 
           {/* Sign Up Link */}

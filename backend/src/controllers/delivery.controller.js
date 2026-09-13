@@ -11,6 +11,7 @@ const carbonCalculator = require("../emissions/carbonCalculator");
 const distanceCalculator = require("../routing/distanceCalculator");
 const { getIO, emitOrderStatus } = require("../services/socket.service");
 const { normalizeToLatLng, formatForApi } = require("../utils/geo");
+const logger = require("../utils/logger");
 
 class DeliveryController {
   // Track delivery by order ID (authenticated users only)

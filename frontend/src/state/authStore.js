@@ -48,34 +48,12 @@ export const useAuthStore = create((set, get) => ({
       return { success: false, error: message };
     }
   },
-  googleLogin: async (credential, extraData = {}) => {
+
+  googleLogin: async (credential) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post('/auth/google', { token: credential, ...extraData });
-      const { token, refreshToken, user } = response.data.data || response.data;
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('refreshToken', refreshToken);
-      socketService.connect(token);
-      
-      try {
-        const userResponse = await api.get('/auth/me');
-        const freshUser = userResponse.data.data?.user || userResponse.data.user;
-        set({ user: freshUser, token, refreshToken, isAuthenticated: true, isLoading: false });
-      } catch (userError) {
-        set({ user, token, refreshToken, isAuthenticated: true, isLoading: false });
-      }
-      return { success: true };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Google login is unavailable. Please try again.';
-      set({ error: message, isLoading: false, isAuthenticated: false });
-      return { success: false, error: message };
-    }
-  },
-  googleLogin: async (credential, extraData = {}) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await api.post('/auth/google', { token: credential, ...extraData });
+      // Only send the Google credential token — backend verifies it with Google directly
+      const response = await api.post('/auth/google', { token: credential });
       const { token, refreshToken, user } = response.data.data || response.data;
       
       localStorage.setItem('token', token);
@@ -161,7 +139,7 @@ export const useAuthStore = create((set, get) => ({
       const currentUser = response.data.data?.user || response.data.user;
       if (currentUser) {
         set({ user: currentUser, isAuthenticated: true, isLoading: false });
-        socketService.connect(token); // Ensure socket reconnects on checkAuth
+        socketService.connect(token);
       } else {
         get().logout();
       }

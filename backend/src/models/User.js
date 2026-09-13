@@ -160,9 +160,10 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for geospatial queries
+// Index for geospatial queries and role filtering
 userSchema.index({ currentLocation: '2dsphere' });
-userSchema.index({ addresses: { embed: 'location' } });
+userSchema.index({ 'addresses.location': '2dsphere' });
+userSchema.index({ role: 1 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {

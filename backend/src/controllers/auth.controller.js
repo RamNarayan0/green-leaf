@@ -178,10 +178,10 @@ class AuthController {
         }
       });
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
+      if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError' || error.message.includes('Invalid or expired')) {
         return res.status(401).json({
           success: false,
-          message: 'Refresh token expired'
+          message: 'Invalid or expired refresh token'
         });
       }
       next(error);

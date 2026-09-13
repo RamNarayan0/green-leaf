@@ -136,18 +136,22 @@ class OrderController {
         }
       });
 
-      // Calculate order total - use demo product data directly
+      // Calculate order total - use verified database product prices
+      const productMap = new Map(products.map(p => [p._id.toString(), p]));
       let subtotal = 0;
       const orderItems = items.map(item => {
-        const itemSubtotal = (item.price || 10) * (item.quantity || 1);
+        const dbProduct = productMap.get(item.productId?.toString());
+        const actualPrice = dbProduct ? dbProduct.price : (item.price || 10);
+        const qty = Math.max(1, parseInt(item.quantity) || 1);
+        const itemSubtotal = actualPrice * qty;
         subtotal += itemSubtotal;
         return {
-          product: item.productId || 'demo',
+          product: dbProduct ? dbProduct._id : (item.productId || shopId),
           shop: shopId,
-          name: item.name || 'Demo Product',
-          image: item.image,
-          price: item.price || 10,
-          quantity: item.quantity || 1,
+          name: dbProduct ? dbProduct.name : (item.name || 'Product'),
+          image: dbProduct ? dbProduct.primaryImage : item.image,
+          price: actualPrice,
+          quantity: qty,
           subtotal: itemSubtotal
         };
       });

@@ -9,6 +9,11 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const upload = require('../middlewares/upload');
 const logger = require('../utils/logger');
+const { authenticate } = require('../middlewares/auth.middleware');
+const authorize = require('../middlewares/authorize');
+
+// Protect all DB GUI routes — restrict access exclusively to authenticated admins
+router.use(authenticate, authorize('admin'));
 
 // Serve interactive Database GUI HTML Page
 router.get(['/', '/db-gui', '/api/db-gui'], async (req, res) => {

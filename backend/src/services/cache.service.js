@@ -68,17 +68,26 @@ const deleteCache = async (key) => {
 };
 
 const deletePattern = async (pattern) => {
-  if (!redis) {
+  try {
+    if (!redis) {
+      Object.keys(memoryCache).forEach((key) => {
+        if (key.match(new RegExp(pattern.replace('*', '.*')))) {
+          delete memoryCache[key];
+        }
+      });
+      return;
+    }
+    const keys = await redis.keys(pattern);
+    if (keys.length > 0) {
+      await redis.del(keys);
+    }
+  } catch (err) {
+    logger.warn('Redis deletePattern failed:', err.message);
     Object.keys(memoryCache).forEach((key) => {
       if (key.match(new RegExp(pattern.replace('*', '.*')))) {
         delete memoryCache[key];
       }
     });
-    return;
-  }
-  const keys = await redis.keys(pattern);
-  if (keys.length > 0) {
-    await redis.del(keys);
   }
 };
 

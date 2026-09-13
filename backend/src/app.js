@@ -58,10 +58,10 @@ const allowedOrigins = rawOrigins
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:") || origin.endsWith(".vercel.app")) {
+      if (!origin || allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && origin.startsWith("http://localhost:"))) {
         return callback(null, true);
       }
-      return callback(null, true);
+      return callback(new Error("CORS policy violation: Origin not allowed"), false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

@@ -174,9 +174,13 @@ const orderSchema = new mongoose.Schema({
 
 // Indexes for performance optimization
 orderSchema.index({ customer: -1 });
+orderSchema.index({ customer: 1, createdAt: -1 });
 orderSchema.index({ shop: -1 });
+orderSchema.index({ shop: 1, 'status.current': 1 });
 orderSchema.index({ 'status.current': -1 });
 orderSchema.index({ deliveryPartner: -1 });
+orderSchema.index({ deliveryPartner: 1, 'status.current': 1 });
+orderSchema.index({ paymentTransactionId: 1 });
 orderSchema.index({ orderNumber: -1 }, { unique: true });
 orderSchema.index({ createdAt: -1 });
 
